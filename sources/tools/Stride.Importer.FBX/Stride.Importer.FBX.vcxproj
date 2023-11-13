@@ -203,10 +203,6 @@
       <Project>{c121a566-555e-42b9-9b0a-1696529a9088}</Project>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\engine\Stride.Rendering\Stride.Rendering.csproj">
-      <Project>{ad4fdc24-b64d-4ed7-91aa-62c9eda12fa4}</Project>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\core\Stride.Core\Stride.Core.csproj">
       <Project>{0e916ab7-5a6c-4820-8ab1-aa492fe66d68}</Project>
       <Private>False</Private>
@@ -250,6 +246,9 @@
   <ItemGroup>
     <Reference Include="BulletSharp">
       <HintPath>..\..\..\deps\BulletPhysics\BulletSharp.NetStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Stride.Rendering">
+      <HintPath>..\..\engine\Stride.Rendering\bin\Debug\net6.0\Stride.Rendering.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(StrideSdkTargets)" />

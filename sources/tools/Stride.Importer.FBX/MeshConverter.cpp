@@ -709,8 +709,70 @@ public:
 			}
 			modelData->Meshes->Add(meshData);
 		}
+
+		ProcessBlendShapes(pMesh);
 	}
 
+#pragma region BLENDSHAPES
+	void ProcessBlendShapes(FbxMesh* pMesh) {
+		int blendShapeDeformerCount = pMesh->GetDeformerCount(FbxDeformer::eBlendShape);
+
+		for (int i = 0; i < blendShapeDeformerCount; ++i) {
+			FbxBlendShape* pBlendShape = static_cast<FbxBlendShape*>(pMesh->GetDeformer(i, FbxDeformer::eBlendShape));
+
+			int blendShapeChannelCount = pBlendShape->GetBlendShapeChannelCount();
+
+			for (int j = 0; j < blendShapeChannelCount; ++j) {
+				FbxBlendShapeChannel* pBlendShapeChannel = pBlendShape->GetBlendShapeChannel(j);
+				String^ channelBlendShapeName = Marshal::PtrToStringAnsi(static_cast<IntPtr>(const_cast<char*>(pBlendShapeChannel->GetName())));
+
+
+				Stride::Rendering::BlendShape^ blendShape = gcnew BlendShape(channelBlendShapeName);
+				
+				int blenShapeChannelTargetCountr = pBlendShapeChannel->GetTargetShapeCount();
+
+				for (int k = 0; k < blenShapeChannelTargetCountr; ++k)
+				{
+				  FbxShape* fbxShape=pBlendShapeChannel->GetTargetShape(k);
+				  
+				  
+
+				  String^ shapeName = Marshal::PtrToStringAnsi(static_cast<IntPtr>(const_cast<char*>(fbxShape->GetName())));
+
+
+				//  array<int>^ indices=gcnew array<int, 
+				  cli::array<int>^ indices = gcnew cli::array<int>(fbxShape->GetControlPointsCount());
+
+				  cli::array<System::Numerics::Vector4>^ controlPoints = gcnew cli::array<System::Numerics::Vector4>(fbxShape->GetControlPointsCount());
+
+				  for (int h = 0; h < fbxShape->GetControlPointsCount(); ++h)
+				  {
+					  indices[h]= fbxShape->GetControlPointIndices()[h];
+					  System::Numerics::Vector4^ controlPoint = gcnew  System::Numerics::Vector4(fbxShape->GetControlPointAt(h)[1], fbxShape->GetControlPointAt(h)[2], fbxShape->GetControlPointAt(h)[3], fbxShape->GetControlPointAt(h)[4]);
+
+					  controlPoints[h] = *controlPoint;
+				  }
+
+
+				  Stride::Rendering::Shape^ shape = gcnew
+
+			    Stride::Rendering::Shape(shapeName, indices, controlPoints);
+
+				 double weight= pBlendShapeChannel->GetTargetShapeFullWeights()[k];
+
+
+
+				  blendShape->AddShape(shape, weight);
+
+				  
+				}
+
+				modelData->AddBlendShape(blendShape);
+			}
+		}
+	}
+
+#pragma endregion
 	// return a boolean indicating whether the built material is transparent or not
 	MaterialAsset^ ProcessMeshMaterialAsset(FbxSurfaceMaterial* lMaterial, std::map<std::string, size_t>& uvElementMapping)
 	{
@@ -1037,7 +1099,9 @@ public:
 
 	IComputeNode^ GenerateSurfaceTextureTree(FbxSurfaceMaterial* lMaterial, std::map<std::string, size_t>& uvElementMapping, Dictionary<IntPtr, ComputeTextureColor^>^ textureMap,
 												std::map<std::string, int>& textureNameCount, char const* surfaceMaterial, char const* surfaceMaterialFactor,
-												Stride::Assets::Materials::MaterialAsset^ finalMaterial)
+												  
+		
+		Stride::Assets::Materials::MaterialAsset^ finalMaterial)
 	{
 		auto compositionTrees = gcnew cli::array<IComputeColor^>(2);
 
@@ -1983,6 +2047,76 @@ private:
 		GetNodes(scene->GetRootNode(), 0, allNodes);
 		return allNodes;
 	}
+
+#pragma region BLENDSHAPES
+
+
+
+	void ProcessBlendShapeTarget(fbxsdk::FbxShape* targetShape) {
+		// Get the number of control points in the target shape
+		int controlPointCount = targetShape->GetControlPointsCount();
+
+		// Get a pointer to the array of control points
+		fbxsdk::FbxVector4* controlPoints = targetShape->GetControlPoints();
+
+		// Access individual control points and their coordinates
+		for (int i = 0; i < controlPointCount; ++i) {
+			fbxsdk::FbxVector4 controlPoint = controlPoints[i];
+			double x = controlPoint[0];
+			double y = controlPoint[1];
+			double z = controlPoint[2];
+
+			
+		}
+	}
+
+	void ProcessBlendShapeChannel(fbxsdk::FbxBlendShapeChannel* channel) {
+		// Process each blend shape target
+		int targetShapeCount = channel->GetTargetShapeCount();
+		for (int k = 0; k < targetShapeCount; ++k) {
+			fbxsdk::FbxShape* targetShape = channel->GetTargetShape(k);
+			const char* targetShapeName = targetShape->GetName();
+
+			// Process control points of the blend shape target
+			ProcessBlendShapeTarget(targetShape);
+		}
+	}
+
+	void ProcessBlendShape(fbxsdk::FbxBlendShape* blendShape) {
+		// Process each blend shape channel
+		int blendShapeChannelCount = blendShape->GetBlendShapeChannelCount();
+		for (int j = 0; j < blendShapeChannelCount; ++j) {
+			fbxsdk::FbxBlendShapeChannel* channel = blendShape->GetBlendShapeChannel(j);
+			const char* channelName = channel->GetName();
+
+			// Process control points of the blend shape channel
+			ProcessBlendShapeChannel(channel);
+		}
+	}
+
+	void ProcessNode(fbxsdk::FbxNode* pNode) {
+		// Check if the node has blend shapes
+		int blendShapeCount = pNode->GetGeometry()->GetDeformerCount(FbxDeformer::eBlendShape);
+		if (blendShapeCount > 0) {
+			for (int i = 0; i < blendShapeCount; ++i) {
+				fbxsdk::FbxBlendShape* blendShape = static_cast<fbxsdk::FbxBlendShape*>(pNode->GetGeometry()->GetDeformer(i, FbxDeformer::eBlendShape));
+
+				// Process control points of the blend shape
+				ProcessBlendShape(blendShape);
+			}
+		}
+
+		// Recursively process child nodes
+		int childCount = pNode->GetChildCount();
+		for (int i = 0; i < childCount; ++i) {
+			ProcessNode(pNode->GetChild(i));
+		}
+	}
+
+
+#pragma endregion 
+
+
 
 public:
 	EntityInfo^ ExtractEntity(String^ inputFileName, bool extractTextureDependencies)

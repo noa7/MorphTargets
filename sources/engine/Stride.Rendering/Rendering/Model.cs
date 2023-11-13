@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using Stride.Core;
 using Stride.Core.Annotations;
 using Stride.Core.Collections;
@@ -14,7 +14,6 @@ using Stride.Core.Serialization;
 using Stride.Core.Serialization.Contents;
 using Stride.Graphics;
 using Stride.Graphics.Data;
-
 using Buffer = Stride.Graphics.Buffer;
 
 namespace Stride.Rendering
@@ -146,6 +145,8 @@ namespace Stride.Rendering
             return result;
         }
 
+        
+
         private void Children_CollectionChanged(object sender, TrackingCollectionChangedEventArgs e)
         {
             var child = (Model)e.Item;
@@ -162,6 +163,13 @@ namespace Stride.Rendering
                     child.parent = null;
                     break;
             }
+        }
+
+        List<BlendShape> blendShapes = null;
+
+        public void AddBlendShape(BlendShape blendShape)
+        {
+            (blendShapes??=new()).Add(blendShape);
         }
     }
 }
