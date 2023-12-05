@@ -60,6 +60,9 @@ namespace Stride.Rendering
             {
                 var objectNode = RootRenderFeature.GetObjectNode(objectNodeReference);
                 var renderMesh = (RenderMesh)objectNode.RenderObject;
+
+             
+
                 var staticObjectNode = renderMesh.StaticObjectNode;
 
                 ref var skinningInfo = ref skinningInfos[staticObjectNode];

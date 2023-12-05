@@ -121,7 +121,6 @@ namespace Stride.Rendering
             {
                 base.Prepare(context);
 
-                // Prepare each sub render feature
                 foreach (var renderFeature in RenderFeatures)
                 {
                     renderFeature.Prepare(context);

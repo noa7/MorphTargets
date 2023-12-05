@@ -130,6 +130,10 @@ namespace Stride.Rendering.Materials
         
         public static readonly PermutationParameterKey<bool> UseDitheredShadows = ParameterKeys.NewPermutation<bool>();
 
+
+        public static readonly PermutationParameterKey<bool> HasBlendShape = ParameterKeys.NewPermutation<bool>();
+
+
         static MaterialKeys()
         {
             //SpecularPowerScaled = ParameterKeys.NewDynamic(ParameterDynamicValue.New<float, float>(SpecularPower, ScaleSpecularPower));

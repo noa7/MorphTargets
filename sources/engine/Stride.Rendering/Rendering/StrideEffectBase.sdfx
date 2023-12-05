@@ -135,6 +135,16 @@ namespace Stride.Rendering
             }
         }
 
+
+
+
+        if (MaterialKeys.HasBlendShape)
+        {
+            mixin TransformationBlendShape;
+        }
+
+
+
         // --------------------------------------------
         // Mix material tessellation for Domain effect
         //---------------------------------------------

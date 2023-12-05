@@ -93,7 +93,7 @@ namespace Stride.Shaders.Compiler
                 // ------------------------------------------------------------------------------------------------------------
                 // 2) Try to load from database cache
                 // ------------------------------------------------------------------------------------------------------------
-                if (bytecode.Key == null && database.ObjectDatabase.Exists(mixinObjectId))
+                if (bytecode.Key == null && database.ObjectDatabase.Exists(mixinObjectId) && false)
                 {
                     using (var stream = database.ObjectDatabase.OpenStream(mixinObjectId))
                     {
