@@ -250,6 +250,9 @@
     <Reference Include="BulletSharp">
       <HintPath>..\..\..\deps\BulletPhysics\BulletSharp.NetStandard.dll</HintPath>
     </Reference>
+    <Reference Include="Stride.Rendering">
+      <HintPath>..\..\engine\Stride.Rendering\bin\Debug\net6.0\Stride.Rendering.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(StrideSdkTargets)" />
   <ImportGroup Label="ExtensionTargets">
